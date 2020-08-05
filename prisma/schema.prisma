@@ -1,0 +1,45 @@
+// Data source: Specifies your database connection.
+// Generator: Indicates that you want to genenerate Prisma Client.
+// Data model: Defines your application models. Each model will be mapped to a table in the underlying database.
+
+datasource db {
+  provider = "sqlite"
+  url = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// One-to-Many => 1 User banyak Link
+model User {
+  id          Int       @id               @default(autoincrement())
+  createdAt   DateTime  @default(now())
+  name        String
+  email       String    @unique
+  password    String
+  links       Link[]
+  votes       Vote[]
+}
+
+model Link {
+  id          Int       @id               @default(autoincrement())
+  createdAt   DateTime  @default(now())
+  description String
+  url         String
+  postedBy    User?     @relation(fields: [postedById], references: [id])
+  postedById  Int?
+  votes       Vote[]
+}
+
+// one-to-many
+model Vote {
+  id          Int       @id               @default(autoincrement())
+  link        Link      @relation(fields: [linkId], references: [id])
+  linkId      Int
+  user        User      @relation(fields: [userId], references: [id])
+  userId      Int
+
+  // many unique
+  @@unique([linkId, userId])
+}
